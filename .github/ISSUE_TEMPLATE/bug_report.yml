@@ -1,0 +1,45 @@
+name: Bug report
+description: Report a bug in web-search
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which version of web-search are you using?
+      placeholder: "0.2.0"
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js version
+      description: "`node --version`"
+      placeholder: "22.12.0"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the bug — what you expected to happen vs. what actually happened.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal code or CLI invocation that demonstrates the bug.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Error messages, stack traces, or JSON output.
+      render: text
