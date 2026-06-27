@@ -1,6 +1,6 @@
 {
   "name": "web-search",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Web search CLI and library: Brave with Serper fallback, normalized SERP results.",
   "type": "module",
   "license": "MIT",
