@@ -21,12 +21,12 @@ export const webSearch = (
   Effect.gen(function* () {
     const query = args.query.trim();
     if (query.length === 0) {
-      return yield* new MissingQuery();
+      return yield* Effect.fail(new MissingQuery());
     }
 
     const settings = yield* Settings;
     if (!hasSearch(settings)) {
-      return yield* new NoProvider();
+      return yield* Effect.fail(new NoProvider());
     }
 
     const count = boundedCount(args.count ?? 10);
@@ -52,5 +52,5 @@ export const webSearch = (
       failures.push({ message: serper.left.message, provider: serper.left.provider });
     }
 
-    return yield* new AllProvidersFailed({ failures });
+    return yield* Effect.fail(new AllProvidersFailed({ failures }));
   });

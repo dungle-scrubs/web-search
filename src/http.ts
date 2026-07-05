@@ -42,9 +42,11 @@ const fetchJson = (request: HttpRequest): Effect.Effect<unknown, HttpError> =>
       catch: toHttpError,
     });
     if (!response.ok) {
-      return yield* new HttpError({
-        message: `HTTP ${response.status} ${response.statusText}`,
-      });
+      return yield* Effect.fail(
+        new HttpError({
+          message: `HTTP ${response.status} ${response.statusText}`,
+        }),
+      );
     }
     return yield* Effect.tryPromise({
       try: () => response.json(),
