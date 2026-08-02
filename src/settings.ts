@@ -8,10 +8,9 @@ export interface SettingsShape {
 }
 
 /** The resolved provider credentials. */
-export class Settings extends Context.Tag("web-search/Settings")<
-  Settings,
-  SettingsShape
->() {}
+export class Settings extends Context.Service<Settings, SettingsShape>()(
+  "web-search/Settings",
+) {}
 
 /** Treat missing or whitespace-only credentials as unset. */
 function nonBlank(value: string | undefined): string | undefined {

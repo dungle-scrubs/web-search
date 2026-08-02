@@ -1,6 +1,6 @@
 /** HTTP client as an injectable service: JSON fetch with a hard timeout. */
 
-import { Context, Duration, Effect, Layer } from "effect";
+import { Context, Duration, Effect, Layer, Option } from "effect";
 import { HttpError } from "./errors.js";
 
 const TIMEOUT = Duration.seconds(30);
@@ -17,10 +17,10 @@ export interface HttpRequest {
  * failures as `HttpError`. Provided as a service so callers (and tests) can swap
  * the transport via a `Layer`.
  */
-export class HttpClient extends Context.Tag("web-search/HttpClient")<
+export class HttpClient extends Context.Service<
   HttpClient,
   { readonly fetchJson: (request: HttpRequest) => Effect.Effect<unknown, HttpError> }
->() {}
+>()("web-search/HttpClient") {}
 
 function toHttpError(error: unknown): HttpError {
   return new HttpError({
@@ -53,10 +53,17 @@ const fetchJson = (request: HttpRequest): Effect.Effect<unknown, HttpError> =>
       catch: toHttpError,
     });
   }).pipe(
-    Effect.timeoutFail({
-      duration: TIMEOUT,
-      onTimeout: () =>
-        new HttpError({ message: `timed out after ${Duration.toMillis(TIMEOUT)}ms` }),
+    Effect.timeoutOption(TIMEOUT),
+    Effect.matchEffect({
+      onFailure: (error) => Effect.fail(error),
+      onSuccess: (result) =>
+        Option.isNone(result)
+          ? Effect.fail(
+              new HttpError({
+                message: `timed out after ${Duration.toMillis(TIMEOUT)}ms`,
+              }),
+            )
+          : Effect.succeed(result.value),
     }),
   );
 

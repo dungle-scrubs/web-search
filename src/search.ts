@@ -1,6 +1,6 @@
 /** Orchestration: validate, then Brave with Serper fallback, as an Effect. */
 
-import { Effect, Either } from "effect";
+import { Effect } from "effect";
 import { boundedCount } from "./count.js";
 import type { WebSearchError } from "./errors.js";
 import { AllProvidersFailed, MissingQuery, NoProvider } from "./errors.js";
@@ -33,23 +33,39 @@ export const webSearch = (
     const failures: ProviderFailure[] = [];
 
     if (settings.braveApiKey !== undefined) {
-      const brave = yield* Effect.either(
+      const brave = yield* Effect.matchEffect(
         braveSearch(settings.braveApiKey, query, count, args.freshness),
+        {
+          onFailure: (error) =>
+            Effect.succeed({
+              ok: false as const,
+              failure: { message: error.message, provider: error.provider },
+            }),
+          onSuccess: (results) => Effect.succeed({ ok: true as const, results }),
+        },
       );
-      if (Either.isRight(brave)) {
-        return { provider: "brave" as const, results: brave.right };
+      if (brave.ok) {
+        return { provider: "brave" as const, results: brave.results };
       }
-      failures.push({ message: brave.left.message, provider: brave.left.provider });
+      failures.push(brave.failure);
     }
 
     if (settings.serperApiKey !== undefined) {
-      const serper = yield* Effect.either(
+      const serper = yield* Effect.matchEffect(
         serperSearch(settings.serperApiKey, query, count),
+        {
+          onFailure: (error) =>
+            Effect.succeed({
+              ok: false as const,
+              failure: { message: error.message, provider: error.provider },
+            }),
+          onSuccess: (results) => Effect.succeed({ ok: true as const, results }),
+        },
       );
-      if (Either.isRight(serper)) {
-        return { provider: "serper" as const, results: serper.right };
+      if (serper.ok) {
+        return { provider: "serper" as const, results: serper.results };
       }
-      failures.push({ message: serper.left.message, provider: serper.left.provider });
+      failures.push(serper.failure);
     }
 
     return yield* Effect.fail(new AllProvidersFailed({ failures }));
