@@ -34,7 +34,7 @@ export const serperSearch = (
         ),
       );
 
-    const decoded = yield* Schema.decodeUnknown(SerperResponse)(json).pipe(
+    const decoded = yield* Schema.decodeUnknownEffect(SerperResponse)(json).pipe(
       Effect.mapError(
         (error) => new ProviderError({ message: error.message, provider: "serper" }),
       ),

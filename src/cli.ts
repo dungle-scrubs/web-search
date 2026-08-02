@@ -4,8 +4,9 @@
 import { argv } from "node:process";
 import { fileURLToPath } from "node:url";
 import { Command, Option } from "commander";
-import { Cause, Effect, Exit, Layer, Option as O } from "effect";
+import { Effect, Layer } from "effect";
 import { formatError } from "./errors.js";
+import type { WebSearchError } from "./errors.js";
 import { HttpClientLive } from "./http.js";
 import { webSearch } from "./search.js";
 import { SettingsLive } from "./settings.js";
@@ -56,18 +57,29 @@ export async function run(argv: readonly string[]): Promise<number> {
     query: options.query,
   }).pipe(Effect.provide(Layer.merge(HttpClientLive, SettingsLive)));
 
-  const exit = await Effect.runPromiseExit(search);
-  if (Exit.isSuccess(exit)) {
-    process.stdout.write(`${JSON.stringify(exit.value, null, 2)}\n`);
+  try {
+    const value = await Effect.runPromise(search);
+    process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
     return 0;
+  } catch (error) {
+    const message = isWebSearchError(error)
+      ? formatError(error)
+      : error instanceof Error
+        ? error.message
+        : String(error);
+    process.stderr.write(`${message}\n`);
+    return 1;
   }
+}
 
-  const failure = Cause.failureOption(exit.cause);
-  const message = O.isSome(failure)
-    ? formatError(failure.value)
-    : Cause.pretty(exit.cause);
-  process.stderr.write(`${message}\n`);
-  return 1;
+/** Narrow a thrown value to a `WebSearchError` for friendly formatting. */
+function isWebSearchError(error: unknown): error is WebSearchError {
+  return (
+    error instanceof Error &&
+    ["MissingQuery", "NoProvider", "AllProvidersFailed"].includes(
+      (error as { _tag?: string })._tag ?? "",
+    )
+  );
 }
 
 /** True when this module is the process entry point (not imported by a test). */

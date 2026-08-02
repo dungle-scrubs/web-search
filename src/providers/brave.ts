@@ -47,7 +47,7 @@ export const braveSearch = (
         ),
       );
 
-    const decoded = yield* Schema.decodeUnknown(BraveResponse)(json).pipe(
+    const decoded = yield* Schema.decodeUnknownEffect(BraveResponse)(json).pipe(
       Effect.mapError(
         (error) => new ProviderError({ message: error.message, provider: "brave" }),
       ),
