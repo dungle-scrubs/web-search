@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://github.com/dungle-scrubs/web-search/compare/web-search-v0.3.0...web-search-v0.4.0) (2026-10-26)
+
+
+### Features
+
+* migrate to Effect v4 (0.3.0) ([#2](https://github.com/dungle-scrubs/web-search/issues/2)) ([25dc15f](https://github.com/dungle-scrubs/web-search/commit/25dc15f40899c7ca9afcad0c95ed4a89962d459a))
+
+
+### Bug Fixes
+
+* publish as @dungle-scrubs/web-search through npm trusted publishing ([#6](https://github.com/dungle-scrubs/web-search/issues/6)) ([752e988](https://github.com/dungle-scrubs/web-search/commit/752e988c3149c5d726a331c210380ad8a63a14bf))
+
 ## [Unreleased]
 
 ## [0.2.0] - 2026-06-23
