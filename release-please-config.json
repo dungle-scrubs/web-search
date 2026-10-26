@@ -16,7 +16,7 @@
   ],
   "packages": {
     ".": {
-      "package-name": "web-search",
+      "package-name": "@dungle-scrubs/web-search",
       "component": "web-search"
     }
   }
